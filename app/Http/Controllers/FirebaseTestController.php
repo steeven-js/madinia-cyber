@@ -23,6 +23,7 @@ class FirebaseTestController extends Controller
 
             // Récupérer l'ID du projet à partir du fichier de configuration
             $serviceAccount = json_decode(file_get_contents(base_path(env('FIREBASE_CREDENTIALS'))), true);
+            // dd($serviceAccount);
             $projectId = $serviceAccount['project_id'] ?? 'unknown';
 
             // Essayer de se connecter à l'authentification Firebase (ne nécessite pas de base de données)
