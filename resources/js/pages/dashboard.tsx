@@ -46,6 +46,22 @@ export default function Dashboard() {
                                 <h3 className="text-lg font-semibold">Test Firebase</h3>
                                 <p className="text-center text-gray-500 dark:text-gray-400 mt-2">Vérifier la connexion avec Firebase</p>
                             </Link>
+
+                            <Link
+                                href="/firebase-users"
+                                className="flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border shadow-sm hover:shadow-md transition-all"
+                            >
+                                <div className="w-16 h-16 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg font-semibold">Utilisateurs Firebase</h3>
+                                <p className="text-center text-gray-500 dark:text-gray-400 mt-2">Gérer les utilisateurs Firebase Auth</p>
+                            </Link>
                         </div>
                     </div>
                 </div>

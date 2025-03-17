@@ -16,6 +16,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route pour tester la connexion Firebase
     Route::get('firebase-test', [FirebaseTestController::class, 'testConnection'])
         ->name('firebase.test');
+
+    // Route pour lister les utilisateurs Firebase
+    Route::get('firebase-users', [FirebaseTestController::class, 'listUsers'])
+        ->name('firebase.users');
 });
 
 require __DIR__.'/settings.php';
