@@ -6,9 +6,22 @@ use Illuminate\Http\Request;
 use Kreait\Firebase\Factory;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use Inertia\Inertia;
+use App\Services\FirebaseLogService;
 
 class FirebaseTestController extends Controller
 {
+    /**
+     * Log Firebase operations
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    protected function logFirebaseOperation(string $message, array $context = [])
+    {
+        FirebaseLogService::log($message, $context);
+    }
+
     /**
      * Test Firebase connection and return the result
      *
@@ -29,6 +42,13 @@ class FirebaseTestController extends Controller
             // Essayer de se connecter à l'authentification Firebase (ne nécessite pas de base de données)
             $auth = $factory->createAuth();
 
+            // Log the successful connection
+            $this->logFirebaseOperation('Connexion à Firebase réussie', [
+                'project_id' => $projectId,
+                'action' => 'testConnection',
+                'timestamp' => now()->timestamp
+            ]);
+
             return Inertia::render('FirebaseTest', [
                 'success' => true,
                 'message' => 'Connexion à Firebase réussie!',
@@ -43,6 +63,13 @@ class FirebaseTestController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
+            // Log the error
+            $this->logFirebaseOperation('Erreur de connexion à Firebase', [
+                'error' => $e->getMessage(),
+                'action' => 'testConnection',
+                'timestamp' => now()->timestamp
+            ]);
+
             return Inertia::render('FirebaseTest', [
                 'success' => false,
                 'message' => 'Erreur de connexion à Firebase',
@@ -70,8 +97,18 @@ class FirebaseTestController extends Controller
             $users = [];
             $userRecords = $auth->listUsers();
 
+            // Convertir l'objet Traversable en tableau pour pouvoir le compter
+            $userRecordsArray = iterator_to_array($userRecords);
+
+            // Log the action
+            $this->logFirebaseOperation('Récupération de la liste des utilisateurs Firebase', [
+                'action' => 'listUsers',
+                'user_count' => count($userRecordsArray),
+                'timestamp' => now()->timestamp
+            ]);
+
             // Convertir les objets utilisateur en tableaux pour l'affichage
-            foreach ($userRecords as $user) {
+            foreach ($userRecordsArray as $user) {
                 // Formater les dates correctement
                 $createdAt = null;
                 $lastLoginAt = null;
@@ -132,6 +169,13 @@ class FirebaseTestController extends Controller
                 'availableRoles' => ['super_admin', 'admin', 'user']
             ]);
         } catch (\Exception $e) {
+            // Log the error
+            $this->logFirebaseOperation('Erreur lors de la récupération des utilisateurs Firebase', [
+                'error' => $e->getMessage(),
+                'action' => 'listUsers',
+                'timestamp' => now()->timestamp
+            ]);
+
             return Inertia::render('FirebaseUsers', [
                 'success' => false,
                 'message' => 'Erreur lors de la récupération des utilisateurs',
@@ -165,6 +209,14 @@ class FirebaseTestController extends Controller
             // Définir les custom claims pour l'utilisateur
             $auth->setCustomUserClaims($validated['uid'], ['role' => $validated['role']]);
 
+            // Log the action
+            $this->logFirebaseOperation('Attribution d\'un rôle à un utilisateur Firebase', [
+                'action' => 'setUserRole',
+                'uid' => $validated['uid'],
+                'role' => $validated['role'],
+                'timestamp' => now()->timestamp
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => "Rôle '{$validated['role']}' attribué avec succès à l'utilisateur",
@@ -172,6 +224,15 @@ class FirebaseTestController extends Controller
                 'role' => $validated['role']
             ]);
         } catch (\Exception $e) {
+            // Log the error
+            $this->logFirebaseOperation('Erreur lors de l\'attribution d\'un rôle à un utilisateur Firebase', [
+                'error' => $e->getMessage(),
+                'uid' => $request->input('uid', 'unknown'),
+                'role' => $request->input('role', 'unknown'),
+                'action' => 'setUserRole',
+                'timestamp' => now()->timestamp
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => "Erreur lors de l'attribution du rôle",

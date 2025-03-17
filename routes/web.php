@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\FirebaseTestController;
+use App\Http\Controllers\FirebaseLogController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -24,6 +25,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route pour attribuer un rôle à un utilisateur Firebase
     Route::post('firebase-users/set-role', [FirebaseTestController::class, 'setUserRole'])
         ->name('firebase.users.set-role');
+
+    // Routes pour les logs Firebase
+    Route::get('firebase-logs', [FirebaseLogController::class, 'index'])
+        ->name('firebase.logs');
+    Route::get('firebase-logs/test', [FirebaseLogController::class, 'testLog'])
+        ->name('firebase.logs.test');
 });
 
 require __DIR__.'/settings.php';
