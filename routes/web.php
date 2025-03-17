@@ -20,6 +20,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route pour lister les utilisateurs Firebase
     Route::get('firebase-users', [FirebaseTestController::class, 'listUsers'])
         ->name('firebase.users');
+
+    // Route pour attribuer un rôle à un utilisateur Firebase
+    Route::post('firebase-users/set-role', [FirebaseTestController::class, 'setUserRole'])
+        ->name('firebase.users.set-role');
 });
 
 require __DIR__.'/settings.php';

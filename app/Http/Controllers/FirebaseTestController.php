@@ -102,6 +102,10 @@ class FirebaseTestController extends Controller
                     }
                 }
 
+                // Récupérer les custom claims (rôles) de l'utilisateur
+                $customClaims = $user->customClaims ?? [];
+                $role = isset($customClaims['role']) ? $customClaims['role'] : null;
+
                 $userData = [
                     'uid' => $user->uid,
                     'email' => $user->email,
@@ -110,6 +114,7 @@ class FirebaseTestController extends Controller
                     'photoUrl' => $user->photoUrl,
                     'emailVerified' => $user->emailVerified,
                     'disabled' => $user->disabled,
+                    'role' => $role,
                     'metadata' => [
                         'createdAt' => $createdAt,
                         'lastLoginAt' => $lastLoginAt,
@@ -123,7 +128,8 @@ class FirebaseTestController extends Controller
                 'success' => true,
                 'message' => 'Liste des utilisateurs récupérée avec succès',
                 'users' => $users,
-                'totalUsers' => count($users)
+                'totalUsers' => count($users),
+                'availableRoles' => ['super_admin', 'admin', 'user']
             ]);
         } catch (\Exception $e) {
             return Inertia::render('FirebaseUsers', [
@@ -131,6 +137,46 @@ class FirebaseTestController extends Controller
                 'message' => 'Erreur lors de la récupération des utilisateurs',
                 'error' => $e->getMessage()
             ]);
+        }
+    }
+
+    /**
+     * Set role for a Firebase user using custom claims
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function setUserRole(Request $request)
+    {
+        try {
+            // Valider les données de la requête
+            $validated = $request->validate([
+                'uid' => 'required|string',
+                'role' => 'required|string|in:super_admin,admin,user'
+            ]);
+
+            // Initialiser la connexion à Firebase
+            $factory = (new Factory)
+                ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
+
+            // Créer l'instance Auth
+            $auth = $factory->createAuth();
+
+            // Définir les custom claims pour l'utilisateur
+            $auth->setCustomUserClaims($validated['uid'], ['role' => $validated['role']]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Rôle '{$validated['role']}' attribué avec succès à l'utilisateur",
+                'uid' => $validated['uid'],
+                'role' => $validated['role']
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur lors de l'attribution du rôle",
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }
